@@ -195,7 +195,7 @@ class CSVData(Data):
 
 class ClusteringData(CSVData):
     def __init__(self, fn):
-        super(ClassificationData, self).__init__(fn)	
+        super(ClusteringData, self).__init__(fn)	
 	  
     def parse_vectors(self):
         reader = csv.reader(open(self.filename, 'r'))
@@ -204,15 +204,18 @@ class ClusteringData(CSVData):
 
         row_ct = 0
         for row in reader:
-            for i, x in enumerate(row):
-                if len(x)< 1:
-                    x = row[i] = 0
+            if row_ct > 0:
+                new_row = []
+                for i, x in enumerate(row):
+                    if len(x)< 1:
+                        x = row[i] = 0
+                    if int(self.restrictions[i]) == 1:
+                        new_row.append(x)
+                self.vectors.append(Vector(list(new_row)))    
+            else:
+                self.restrictions.extend(row)
             
-            if row_ct == 0:
-                self.restrictions.append(Vector(list(row)))
-            elif self.restrictions[row_ct]:
-                self.vectors.append(Vector(list(row)))
-            row_ct++
+            row_ct += 1
 
 class ClassificationData(CSVData):
     def __init__(self, fn):
